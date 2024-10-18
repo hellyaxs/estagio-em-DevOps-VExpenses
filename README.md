@@ -273,16 +273,10 @@ terraform apply -var="instance_count=3"
 
 3. **Regras de Segurança Aprimoradas**: As regras de saída foram limitadas para permitir apenas tráfego HTTP, HTTPS e DNS, aumentando a segurança da infraestrutura. O uso de variáveis para as portas de saída permite que essas regras sejam definidas de forma dinâmica, facilitando alterações futuras.
 
-4. **Proteção de SSH**: O acesso SSH foi restringido para permitir conexões apenas a partir de redes VPN específicas, reduzindo o risco de acesso não autorizado e tambem foi desabilitado o acesso ssh via root e password.
+4. **Proteção de SSH**: O acesso SSH foi restringido para permitir conexões apenas a partir de redes VPN específicas, reduzindo o risco de acesso não autorizado e agora a coneção so pode ser feita via chave RSA, login e senha via root foi desabilitado.
 
 5. **Instalação Automatizada do Nginx**: A configuração da instância EC2 inclui um script de inicialização que instala e inicia o servidor Nginx automaticamente.
 
-
-#### Descrição Técnica das Melhorias
-Modularização: O código foi dividido em módulos para melhor organização e reutilização. Cada módulo tem uma responsabilidade clara, facilitando a manutenção e a compreensão do projeto.
-Variáveis Dinâmicas: A adição de variáveis permite que o número de instâncias e as portas de saída sejam facilmente ajustados sem a necessidade de alterar o código principal.
-Segurança Aprimorada: O acesso SSH foi restringido para apenas redes VPN, e as regras de saída foram limitadas, contribuindo para um ambiente mais seguro.
-Automação: O uso de scripts de inicialização para instalar e configurar serviços na instância EC2 garante que a infraestrutura esteja pronta para uso imediatamente após a criação.
 
 
 #### Instruções de Uso
@@ -323,31 +317,7 @@ Acesse a Instância EC2:
 Após a criação, você pode acessar a instância EC2 usando a chave privada gerada. Lembre-se de permitir o acesso SSH a partir da sua rede VPN.
 
 
+Teste com LocalStack:
 
-
-
-
-
-## Arquivo main.tf Modificado
-
-
-1. uma primeira sugestão segura é apontar o tráfego SSH para uma VPN que a empresa já utiliza. Ao implementar uma VPN, o tráfego SSH pode ser restrito apenas aos endereços IP gerados pela própria VPN, reduzindo a exposição ao tráfego externo e fornecendo uma camada adicional de autenticação e criptografia.. (linha 92)
-
-2. Desabilitar SSH Root Login:
-Para impedir que o usuário root faça login via SSH, é necessário ajustar a configuração SSH dentro do arquivo /etc/ssh/sshd_config. Você pode incluir esse ajuste no user_data da instância EC2.(linha 147)
-
-3. Configurar um Firewall:
-A AWS já aplica regras de segurança, mas você pode adicionar um firewall no nível do sistema operacional, como o ufw (Uncomplicated Firewall). Esse firewall pode ser configurado para restringir o tráfego SSH, HTTP, ou outros serviços conforme necessário.(linha 153)
-
-2. Descrição Técnica e Resultados Esperados
-Segurança Melhorada:
-
-O acesso SSH foi restrito a uma faixa específica de IPs da VPN (tanto IPv4 quanto IPv6).
-Foi desabilitado o login root via SSH, forçando a utilização de um usuário padrão mais seguro.
-O tráfego de saída foi limitado a portas essenciais (HTTP, HTTPS e DNS), reduzindo a superfície de ataque.
-Automação com Nginx:
-
-O servidor Nginx será instalado e iniciado automaticamente, e configurado para reiniciar com o sistema.
-Isso torna o ambiente pronto para receber tráfego web (HTTP), eliminando a necessidade de configuração manual após a criação da instância.
-
-- **Segurança:** A regra de segurança para SSH permite acesso de qualquer lugar (0.0.0.0/0), o que pode representar um risco de segurança. Idealmente, o tráfego SSH deveria ser limitado a um IP ou range de IPs confiáveis ou.
+Inicie o LocalStack em sua máquina e configure suas credenciais para apontar para o LocalStack.
+Siga os mesmos passos acima para executar o Terraform.
