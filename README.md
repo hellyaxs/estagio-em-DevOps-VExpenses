@@ -274,7 +274,7 @@ terraform apply -var="instance_count=3"
 > (agora as portas e saida são declaradas no arquivo de `variables.tf` e interadas dinamincamente no arquivo `security.tf`)
 
 4. **Proteção de SSH**: O acesso SSH foi restringido para permitir conexões apenas a partir de redes VPN específicas, reduzindo o risco de acesso não autorizado e agora a coneção so pode ser feita via chave RSA, login e senha via root foi desabilitado.
-> (Observe isso no arquivo `instances.tf`)
+> (Observe isso no arquivo `instances.tf` e `security.tf` )
 
 5. **Instalação Automatizada do Nginx**: A configuração da instância EC2 inclui um script de inicialização que instala e inicia o servidor Nginx automaticamente.
 > (Observe isso no arquivo `instances.tf`)
