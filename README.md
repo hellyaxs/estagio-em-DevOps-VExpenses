@@ -1,4 +1,4 @@
-# Análise Técnica do Código Terraform
+# 📚 Análise Técnica do Código Terraform
 
 1. Leitura do Arquivo:
 Este arquivo Terraform tem como objetivo provisionar uma infraestrutura na AWS, utilizando os serviços de rede e computação. Ele cria uma VPC, uma sub-rede, um gateway de internet, um grupo de segurança, uma instância EC2 (Debian), e configurações de rota e chave SSH para acessar a instância.
@@ -258,8 +258,7 @@ O recurso aws_route_table_association serve apenas para associar uma sub-rede a 
 
 
 
-
-# Modificações e melhorias para o codigo Terraform
+# 🎯 Modificações e melhorias para o codigo Terraform
 
 As principais melhorias implementadas incluem:
 
@@ -271,22 +270,24 @@ As principais melhorias implementadas incluem:
 terraform apply -var="instance_count=3"
 ```
 
-3. **Regras de Segurança Aprimoradas**: As regras de saída foram limitadas para permitir apenas tráfego HTTP, HTTPS e DNS, aumentando a segurança da infraestrutura. O uso de variáveis para as portas de saída permite que essas regras sejam definidas de forma dinâmica, facilitando alterações futuras.
+3. **Regras de Segurança Aprimoradas**: As regras de saída foram limitadas para permitir apenas tráfego HTTP, HTTPS e DNS, aumentando a segurança da infraestrutura. O uso de **variáveis** para as portas de saída permite que essas regras sejam definidas de forma dinâmica, facilitando alterações futuras.
+> (agora as portas e saida são declaradas no arquivo de `variables.tf` e interadas dinamincamente no arquivo `security.tf`)
 
 4. **Proteção de SSH**: O acesso SSH foi restringido para permitir conexões apenas a partir de redes VPN específicas, reduzindo o risco de acesso não autorizado e agora a coneção so pode ser feita via chave RSA, login e senha via root foi desabilitado.
+> (Observe isso no arquivo `instances.tf`)
 
 5. **Instalação Automatizada do Nginx**: A configuração da instância EC2 inclui um script de inicialização que instala e inicia o servidor Nginx automaticamente.
+> (Observe isso no arquivo `instances.tf`)
 
 
 
-#### Instruções de Uso
+## 📝 Instruções de Uso
 
-Pré-requisitos
-Terraform: Certifique-se de ter o Terraform instalado. Você pode baixar a versão mais recente em terraform.io.
+**Pré-requisitos Terraform:** Certifique-se de ter o Terraform instalado. Você pode baixar a versão mais recente em [terraform.io.](https://developer.hashicorp.com/terraform/install?product_intent=terraform)
 
-Conta na AWS: Você precisa de uma conta na AWS com permissões adequadas para criar os recursos necessários.
+**Conta na AWS:** Você precisa de uma conta na AWS com permissões adequadas para criar os recursos necessários.
 
-Configuração das Credenciais AWS: As credenciais da AWS devem estar configuradas em seu ambiente. Você pode usar o arquivo ~/.aws/credentials ou configurar as variáveis de ambiente AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY.
+**Configuração das Credenciais AWS:** As credenciais da AWS devem estar configuradas em seu ambiente. Você pode usar o arquivo `~/.aws/credentials` ou configurar as variáveis de ambiente *AWS_ACCESS_KEY_ID* e *AWS_SECRET_ACCESS_KEY*.
 
 Passos para Inicializar e Aplicar a Configuração Terraform
 Clone o repositório:
@@ -311,13 +312,12 @@ Aplique a configuração:
 terraform apply
 ```
 Revise as alterações propostas e confirme a aplicação.
-
-Acesse a Instância EC2:
-
 Após a criação, você pode acessar a instância EC2 usando a chave privada gerada. Lembre-se de permitir o acesso SSH a partir da sua rede VPN.
 
 
-Teste com LocalStack:
+## 🎲 Dica 
 
-Inicie o LocalStack em sua máquina e configure suas credenciais para apontar para o LocalStack.
+**Teste com LocalStack:**
+
+Inicie o [LocalStack](https://www.localstack.cloud/) em sua máquina e configure suas credenciais para apontar para o LocalStack.
 Siga os mesmos passos acima para executar o Terraform.
