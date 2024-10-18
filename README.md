@@ -7,7 +7,7 @@ Este arquivo Terraform tem como objetivo provisionar uma infraestrutura na AWS, 
 2. Descrição Técnica:
 Aqui está uma descrição detalhada do que cada recurso faz no arquivo:
 
-### Provedor AWS
+#### Provedor AWS
 
 ```bash
 provider "aws" {
@@ -16,7 +16,7 @@ provider "aws" {
 ```
 `Provedor AWS:` Define o provedor que o Terraform vai usar, neste caso, a AWS, e a região onde os recursos serão provisionados (us-east-1).
 
-### Variáveis
+#### Variáveis
 ```bash
 variable "projeto" {
   description = "Nome do projeto"
@@ -219,7 +219,7 @@ resource "aws_instance" "debian_ec2" {
 }
 ```
 
-`aws_instance:` Cria uma instância EC2 utilizando a AMI do Debian 12. É uma instância t2.micro que está associada à sub-rede e à chave SSH criada. Além disso, é associado um volume root de 20 GB (gp2), e a instância recebe um IP público.
+`aws_instance:` Cria uma instância EC2 utilizando a AMI do Debian 12. É uma instância t2.micro que está associada à sub-rede e à chave SSH criada. Além disso, é associado um volume root de 20 GB (gp2), e a instância recebe um IP público, e ao instanciar a maquina ele atualiza todas a bibliotecas de dependencias.
 
 
 #### Outputs
@@ -261,9 +261,93 @@ O recurso aws_route_table_association serve apenas para associar uma sub-rede a 
 
 # Modificações e melhorias para o codigo Terraform
 
+As principais melhorias implementadas incluem:
+
+1. **Estrutura Modular**: O código foi dividido em múltiplos arquivos para melhor organização e manutenibilidade. As responsabilidades foram separadas em arquivos como `variables.tf`, `network.tf`, `security.tf`, `instances.tf` e `outputs.tf`.
+
+2. **Variáveis para Número de Instâncias**: A configuração permite a definição do número de instâncias EC2 a serem criadas, tornando o código mais flexível e reutilizável.
+
+```bash
+terraform apply -var="instance_count=3"
+```
+
+3. **Regras de Segurança Aprimoradas**: As regras de saída foram limitadas para permitir apenas tráfego HTTP, HTTPS e DNS, aumentando a segurança da infraestrutura. O uso de variáveis para as portas de saída permite que essas regras sejam definidas de forma dinâmica, facilitando alterações futuras.
+
+4. **Proteção de SSH**: O acesso SSH foi restringido para permitir conexões apenas a partir de redes VPN específicas, reduzindo o risco de acesso não autorizado e tambem foi desabilitado o acesso ssh via root e password.
+
+5. **Instalação Automatizada do Nginx**: A configuração da instância EC2 inclui um script de inicialização que instala e inicia o servidor Nginx automaticamente.
+
+
+#### Descrição Técnica das Melhorias
+Modularização: O código foi dividido em módulos para melhor organização e reutilização. Cada módulo tem uma responsabilidade clara, facilitando a manutenção e a compreensão do projeto.
+Variáveis Dinâmicas: A adição de variáveis permite que o número de instâncias e as portas de saída sejam facilmente ajustados sem a necessidade de alterar o código principal.
+Segurança Aprimorada: O acesso SSH foi restringido para apenas redes VPN, e as regras de saída foram limitadas, contribuindo para um ambiente mais seguro.
+Automação: O uso de scripts de inicialização para instalar e configurar serviços na instância EC2 garante que a infraestrutura esteja pronta para uso imediatamente após a criação.
+
+
+#### Instruções de Uso
+
+Pré-requisitos
+Terraform: Certifique-se de ter o Terraform instalado. Você pode baixar a versão mais recente em terraform.io.
+
+Conta na AWS: Você precisa de uma conta na AWS com permissões adequadas para criar os recursos necessários.
+
+Configuração das Credenciais AWS: As credenciais da AWS devem estar configuradas em seu ambiente. Você pode usar o arquivo ~/.aws/credentials ou configurar as variáveis de ambiente AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY.
+
+Passos para Inicializar e Aplicar a Configuração Terraform
+Clone o repositório:
+
+```bash
+git clone <URL_DO_REPOSITORIO> && cd <NOME_DA_PASTA>
+```
+
+Inicialize o Terraform:
+
+```bash
+terraform init
+```
+
+Valide a configuração:
+```bash
+terraform validate
+```
+
+Aplique a configuração:
+```bash
+terraform apply
+```
+Revise as alterações propostas e confirme a aplicação.
+
+Acesse a Instância EC2:
+
+Após a criação, você pode acessar a instância EC2 usando a chave privada gerada. Lembre-se de permitir o acesso SSH a partir da sua rede VPN.
+
+
+
+
+
+
+
+## Arquivo main.tf Modificado
+
+
+1. uma primeira sugestão segura é apontar o tráfego SSH para uma VPN que a empresa já utiliza. Ao implementar uma VPN, o tráfego SSH pode ser restrito apenas aos endereços IP gerados pela própria VPN, reduzindo a exposição ao tráfego externo e fornecendo uma camada adicional de autenticação e criptografia.. (linha 92)
+
+2. Desabilitar SSH Root Login:
+Para impedir que o usuário root faça login via SSH, é necessário ajustar a configuração SSH dentro do arquivo /etc/ssh/sshd_config. Você pode incluir esse ajuste no user_data da instância EC2.(linha 147)
+
+3. Configurar um Firewall:
+A AWS já aplica regras de segurança, mas você pode adicionar um firewall no nível do sistema operacional, como o ufw (Uncomplicated Firewall). Esse firewall pode ser configurado para restringir o tráfego SSH, HTTP, ou outros serviços conforme necessário.(linha 153)
+
+2. Descrição Técnica e Resultados Esperados
+Segurança Melhorada:
+
+O acesso SSH foi restrito a uma faixa específica de IPs da VPN (tanto IPv4 quanto IPv6).
+Foi desabilitado o login root via SSH, forçando a utilização de um usuário padrão mais seguro.
+O tráfego de saída foi limitado a portas essenciais (HTTP, HTTPS e DNS), reduzindo a superfície de ataque.
+Automação com Nginx:
+
+O servidor Nginx será instalado e iniciado automaticamente, e configurado para reiniciar com o sistema.
+Isso torna o ambiente pronto para receber tráfego web (HTTP), eliminando a necessidade de configuração manual após a criação da instância.
+
 - **Segurança:** A regra de segurança para SSH permite acesso de qualquer lugar (0.0.0.0/0), o que pode representar um risco de segurança. Idealmente, o tráfego SSH deveria ser limitado a um IP ou range de IPs confiáveis ou.
-
-
-- **Tamanho da Instância:** A instância EC2 criada é do tipo t2.micro, que é de baixo custo e adequada para pequenos testes ou desenvolvimento, mas pode não ser suficiente para ambientes de produção.
-
-- **Chave Privada:** A chave privada é sensível e, por segurança, é exibida como uma saída sensível (sensitive = true), o que é uma boa prática para evitar exposição inadvertida da chave.
